@@ -17,27 +17,63 @@ def get_filters():
     """
     print('Hello! Let\'s explore some US bikeshare data!')
     # TO DO: get user input for city (chicago, new york city, washington). HINT: Use a while loop to handle invalid inputs
-    city = input('Enter the name of a city (chicago, new york city, washington). Note: case-sensitive... ')
-    while city not in CITY_DATA.keys():
-        print("Invalid entry for city name. Try again... ")
-        city = input('Enter the name of a city (chicago, new york city, washington). Note: case-sensitive... ')
-            
+    city_selection = input('To view the available bikeshare data, kindly type: \n The letter (a) for Chicago\n The letter (b) for New York City \n The letter (c) for Washigton:\n\n '.lower())
+    while city_selection not in {'a', 'b', 'c'}:        
+        print("That's invalid input.")
+        city_selection = input('To view the available bikeshare data, kindly type: \n The letter (a) for Chicago\n The letter (b) for New York City \n The letter (c) for Washigton:\n '.lower())
         
-
+    if city_selection == 'a':
+        city = 'chicago'
+    elif city_selection == 'b':
+        city = 'new york city'
+    elif city_selection == 'c':
+        city = 'washington'
+        
     # TO DO: get user input for month (all, january, february, ... , june)
-    month = input("Enter a month from january to june. Note: lowercase sensitive... ")
-    months = ['january', 'february', 'march', 'april', 'may', 'june']
-    while (month not in months) and month != all:
-        print("Invalid entry for month. Try a lowercase month name from january through june... ")
-        month =  input("Enter a month from january to june. Otherwise, choose all months by entering 'all'. Note: lowercase sensitive... ")
-    
+    month_selection = input("Kindly enter the name of the month you want to show descriptive statistics for: \n Enter (jan) for January. \n Enter (feb) for February \n Enter (mar) for March \n Enter (ap) for April \n Enter (m) for may \n Enter (jun) for June \n Enter (all) to display data for all months. \n".lower())
+    while month_selection not in {'jan', 'feb', 'mar', 'ap', 'm', 'jun', 'all'}:
+        print("That's invalid input.")
+        month_selection = input("Kindly enter the name of the month you want to show descriptive statistics for: \n Enter (jan) for January. \n Enter (feb) for February \n Enter (mar) for March \n Enter (ap) for April \n Enter (m) for may \n Enter (jun) for June \n Enter (all) to display data for all months. \n".lower())
+    #The following if statement is to return the month based on the user input 
+    #after checking for errors with the previous while statement.
+    if month_selection == 'jan':
+        month = 'January'
+    elif month_selection == 'feb':
+        month = 'February'
+    elif month_selection == 'mar':
+        month = 'March'
+    elif month_selection == 'ap':
+        month = 'April'
+    elif month_selection =='m':
+        month = 'May'
+    elif month_selection == 'jun':
+        month = 'June'
+    elif month_selection == 'all':
+        month = 'all'
         
     # TO DO: get user input for day of week (all, monday, tuesday, ... sunday)
-    days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-    day = input("Enter the day you want to show data for in lowercase. If no specific day is wanted, enter 'all'...")
-    while day not in days:
-        print("Invalid entry for a day. Try again.")
-        #day = input("Enter the day you want to show data for in lowercase. If no specific day is wanted, enter 'all'...")
+    day_selection = input("Kindly enter the name of the day you want to show descriptive statistics for. \n Enter (sun) for Sunday \n Enter (mon) for Monday \n Enter (tue) for Tuesday \n Enter (wed) for Wednesday \n Enter (thu) for Thursday \n Enter (fri) for Friday \n Enter (sat) for Saturday\n Enter (all) for all days \n".lower())
+    while day_selection not in {'all','sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'all'}:
+        print("That's invalid input")
+        day_selection = input("Kindly enter the name of the day you want to show descriptive statistics for. \n Enter (sun) for Sunday \n Enter (mon) for Monday \n Enter (tue) for Tuesday \n Enter (wed) for Wednesday \n Enter (thu) for Thursday \n Enter (fri) for Friday \n Enter (sat) for Saturday \n Enter (all) for all days \n".lower())
+    if day_selection == 'sun':
+        day = 'Sunday'
+    elif day_selection == 'mon':
+        day = 'Monday'
+    elif day_selection == 'tue':
+        day = 'Tuesday'
+    elif day_selection == 'wed':
+        day = 'Wednesday'
+    elif day_selection =='thu':
+        day = 'Thursday'
+    elif day_selection == 'fri':
+        day = 'Friday'
+    elif day_selection == 'sat':
+        day = 'Saturday'
+    elif day_selection == 'all':
+        day = 'all'
+        
+        
     print('-'*40)
     return city, month, day
 
@@ -59,25 +95,27 @@ def load_data(city, month, day):
     df['Start Time'] = pd.to_datetime(df['Start Time'])
     df['month'] = df['Start Time'].dt.month_name()
     df['day_of_week'] = df['Start Time'].dt.day_name()
-    #get filters from user input using the get_filters() function
-    city, month, day = get_filters()
     # filter by month if applicable
     if month != 'all':
-        df = df[df['month'] == month.title()]  
+        df = df[df['month'] == month.title()]
+    else:
+        pass
     if day != 'all':
         df = df[df['day_of_week'] == day.title()]
+    else:
+        pass
         
     return df
 
 
-def time_stats(df):
+def time_stats(df, month, day):
     """Displays statistics on the most frequent times of travel."""
 
     print('\nCalculating The Most Frequent Times of Travel...\n')
     start_time = time.time()
     
     #Set the city, month, and day variables for use inside this function
-    city, month, day = get_filters()
+    #city, month, and day variables will be specified before running this function
     # TO DO: display the most common month
     print("The most common month for bike trips is: {}.".format(df['month'].mode()[0]))
 
@@ -85,10 +123,16 @@ def time_stats(df):
     print("The most common day of the week for all bike trips is: {}.".format(df['day_of_week'].mode()[0]))
     
     #THis series is to extract the most common day for a given month
-    best_day_in_month = df['day_of_week'][df['month'] == month.title()].mode()[0]
+    if month != 'all':    
+        best_day_in_month = df['day_of_week'][df['month'] == month.title()].mode()[0]
+    else:
+        pass
     
     #This is to display most common day of the week in a certain month
-    print("The most common day in {} for bike trips is {}.".format(month.title(), best_day_in_month))
+    if day != 'all':
+        print("The most common day in {} for bike trips is {}.".format(month.title(), best_day_in_month))
+    else:
+        pass
 
     # TO DO: display the most common start hour
     df['hour'] = df['Start Time'].dt.hour
@@ -143,43 +187,75 @@ def trip_duration_stats(df):
     print('-'*40)
 
 
-def user_stats(df):
-    """Displays statistics on bikeshare users."""
+def user_stats(df, city):
+    """Displays statistics on bikeshare users. gender_counts and birth_year 
+    must be specified in the global workspace before running this function."""
 
     print('\nCalculating User Stats...\n')
     start_time = time.time()
 
     # TO DO: Display counts of user types
     user_types = df['User Type'].value_counts()
+    subscriber_count = user_types[0]
+    customer_count = user_types[1]
 
-    print("Following are user type counts:\n {}".format(user_types))
+    print("There are {} subscribers and {} customers in this sample.".format(subscriber_count, customer_count))
 
     # TO DO: Display counts of gender
-    gender_counts = df['Gender'].value_counts()
-    print("Following are gender counts: \n {}".format(gender_counts))
+    if city in {'chicago', 'new york city'}:
+        df_gender = df['Gender']
+    
+        gender_counts = df_gender.value_counts()
+        male_counts = gender_counts[0]
+        female_counts = gender_counts[1]
+        print("There are {} male users and {} female users.".format(male_counts, female_counts))
 
     # TO DO: Display earliest, most recent, and most common year of birth
-    birth_year = df['Birth Year']
-    print("The most recent year of birth for a user is: {}.".format(birth_year.max()))
-    print("The earliest year of birth for a user is: {}".format(birth_year.min()))
-    print("The most common year of birth for a user is: {}.".format(birth_year.mode()[0]))
+        birth_year = df['Birth Year']
+        recent_year = int(birth_year.max())
+        earliest_year = int(birth_year.min())
+        most_common_year = int(birth_year.mode()[0])
+        print("The most recent year of birth for a user is: {}.".format(recent_year))
+        print("The earliest year of birth for a user is: {}".format(earliest_year))
+        print("The most common year of birth for a user is: {}.".format(most_common_year))
+    else:
+        pass
     
     print("\nThis took %s seconds." % (time.time() - start_time))
     print('-'*40)
+    
+def raw_input_wanted():
+    input_selection = input("If you want to show (more) raw data,\n Enter (y) for (yes). \n Enter (n) for n for (No): \n")
+    while input_selection not in {'y', 'n'}:
+        print("That's invalid input.")
+        input_selection = input("If you want to show data, enter (y) for (yes). \n Enter (n) for (No): \n")
+    return input_selection
+
+def print_raw_data(df, input_selection, start = 0):
+    while input_selection == 'y':
+        stop = start + 5
+        print(df.iloc[start: stop])
+        start += 5
+        input_selection = raw_input_wanted()
+
 
 
 def main():
     while True:
         city, month, day = get_filters()
         df = load_data(city, month, day)
+#I encountered an error while executing the following line so I moved it to the global workspace.
 
-        time_stats(df)
+        time_stats(df, month, day)
         station_stats(df)
         trip_duration_stats(df)
-        user_stats(df)
-
+        user_stats(df, city)
+        input_selection = raw_input_wanted()
+        print_raw_data(df, input_selection)
+        
         restart = input('\nWould you like to restart? Enter yes or no.\n')
         if restart.lower() != 'yes':
+            start = 0
             break
 
 
